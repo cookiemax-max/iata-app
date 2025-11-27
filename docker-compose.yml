@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   backend:
     build: ./Backend
@@ -11,7 +13,10 @@ services:
       - MONGO_URI=mongodb://mongodb:27017/iata
 
   frontend:
-    build: ./Frontend/report-app
+    build:
+      context: ./Frontend/report-app
+      args:
+        REACT_APP_BACKEND_URL: "http://backend:5000"
     ports:
       - "3000:80"
     environment:
