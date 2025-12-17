@@ -44,7 +44,7 @@ exports.summarizeAndSaveReport = async (req, res) => {
     }
 
     // 3. Prepare input text array
-    const inputTexts = dailyInputs.map(di => di.input);
+    const inputTexts = dailyInputs.map((di) => di.input);
 
     // 4. AI summarize -- PASS periodStart & periodEnd for better formatting!
     const summary = await aiService.getSummary(inputTexts, {
@@ -68,5 +68,29 @@ exports.summarizeAndSaveReport = async (req, res) => {
   } catch (err) {
     console.error('Error summarizing and saving report summary:', err);
     res.status(500).json({ error: err.message || 'Server error while summarizing report.' });
+  }
+};
+
+/**
+ * Concierge chat endpoint
+ * POST /api/ai/chat
+ * Body: { message: string, history?: [{ role: 'user'|'assistant', content: string }] }
+ */
+exports.chatConcierge = async (req, res) => {
+  try {
+    const { message, history = [] } = req.body;
+
+    if (!message || typeof message !== 'string') {
+      return res.status(400).json({ error: 'Message is required.' });
+    }
+
+    const reply = await aiService.chatWithConcierge(history, message);
+
+    return res.json({
+      reply,
+    });
+  } catch (err) {
+    console.error('Error in concierge chat:', err);
+    res.status(500).json({ error: err.message || 'AI concierge chat failed.' });
   }
 };

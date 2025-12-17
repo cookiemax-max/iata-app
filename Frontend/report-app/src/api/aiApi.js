@@ -17,3 +17,11 @@ export const summarizeReportAndSave = (reportId) => {
 // (Optional) stateless summarization endpoint
 export const summarizeInputs = (inputs) =>
   axios.post(`${BASEURL}/api/ai/summarize`, { inputs });
+
+/**
+ * Send a message to the AI concierge chat endpoint.
+ * @param {{ message: string, history?: Array<{ role: 'user'|'assistant', content: string }> }} payload
+ * @returns {Promise<Object>} API response with { reply }
+ */
+export const sendChatMessage = (payload) =>
+  axios.post(`${BASEURL}/api/ai/chat`, payload);

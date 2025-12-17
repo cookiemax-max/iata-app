@@ -1,25 +1,49 @@
 import React, { useState } from 'react';
 import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
+import { sendChatMessage } from '../api/aiApi';
 
 export default function ChatSidebar() {
   const [messages, setMessages] = useState([
     { id: 1, sender: 'ai', text: 'Hello! I can help summarize your weekly reports.' },
-    { id: 2, sender: 'user', text: 'Generate weekly summary.' },
   ]);
   const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSend = () => {
-    if (!input.trim()) return;
-    const newMessage = { id: Date.now(), sender: 'user', text: input };
-    setMessages([...messages, newMessage]);
+  const handleSend = async () => {
+    if (!input.trim() || loading) return;
+
+    const userMessage = { id: Date.now(), sender: 'user', text: input };
+
+    // Build history for backend
+    const history = messages.map((m) => ({
+      role: m.sender === 'ai' ? 'assistant' : 'user',
+      content: m.text,
+    }));
+
+    setMessages((prev) => [...prev, userMessage]);
     setInput('');
-    // Simulated AI response
-    setTimeout(() => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const { data } = await sendChatMessage({
+        message: userMessage.text,
+        history,
+      });
+
+      const replyText = data.reply || 'Sorry, I could not respond.';
+
       setMessages((prev) => [
         ...prev,
-        { id: Date.now() + 1, sender: 'ai', text: 'Your weekly summary has been generated!' },
+        { id: Date.now() + 1, sender: 'ai', text: replyText },
       ]);
-    }, 1000);
+    } catch (err) {
+      console.error('AI concierge error:', err);
+      setError('Unable to get concierge response.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -34,7 +58,9 @@ export default function ChatSidebar() {
           />
           <div>
             <h2 className="text-lg font-semibold">AI Concierge</h2>
-            <p className="text-sm text-slate-500">Your intelligent assistant</p>
+            <p className="text-sm text-slate-500">
+              Your intelligent assistant
+            </p>
           </div>
         </div>
       </div>
@@ -53,6 +79,11 @@ export default function ChatSidebar() {
             {msg.text}
           </div>
         ))}
+        {error && (
+          <div className="text-xs text-red-500 mt-2">
+            {error}
+          </div>
+        )}
       </div>
 
       {/* Input Area */}
@@ -60,18 +91,22 @@ export default function ChatSidebar() {
         <div className="flex items-center space-x-2">
           <input
             type="text"
-            placeholder="Type a message..."
+            placeholder={loading ? 'Waiting for reply...' : 'Type a message...'}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             className="flex-1 border border-slate-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleSend();
             }}
+            disabled={loading}
           />
           <button
             onClick={handleSend}
-            className="bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition"
+            className={`bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition ${
+              loading ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
             aria-label="Send message"
+            disabled={loading}
           >
             <PaperAirplaneIcon className="w-5 h-5" />
           </button>

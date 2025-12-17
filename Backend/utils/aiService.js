@@ -104,7 +104,7 @@ a) None
     const ai = new GoogleGenAI({ apiKey: GOOGLE_GENAI_API_KEY });
 
     const response = await ai.models.generateContent({
-      model: "gemini-3-pro-preview",
+      model: 'gemini-3-pro-preview',
       contents: prompt,
     });
 
@@ -113,10 +113,73 @@ a) None
     } else if (response.content) {
       return response.content.trim();
     } else {
-      throw new Error("Google GenAI did not return a valid summary.");
+      throw new Error('Google GenAI did not return a valid summary.');
     }
   } catch (error) {
-    console.error("Google GenAI summarization failed:", error?.response?.data || error.message);
-    throw new Error("Failed to summarize inputs with Google GenAI.");
+    console.error('Google GenAI summarization failed:', error?.response?.data || error.message);
+    throw new Error('Failed to summarize inputs with Google GenAI.');
+  }
+};
+
+/**
+ * Concierge chat helper: given the current user message and an optional history,
+ * return the assistant's reply as plain text.
+ *
+ * @param {Array<{ role: 'user'|'assistant'|'system', content: string }>} history
+ * @param {string} message - Latest user message
+ * @returns {Promise<string>} - Assistant reply text
+ */
+exports.chatWithConcierge = async (history = [], message) => {
+  const GOOGLE_GENAI_API_KEY = process.env.GOOGLE_GENAI_API_KEY;
+  if (!GOOGLE_GENAI_API_KEY) {
+    // Simple local/dev stub
+    return 'Stub concierge reply: I can help you interpret your weekly reports and daily inputs.';
+  }
+
+  if (!message || typeof message !== 'string') {
+    throw new Error('Chat message is required.');
+  }
+
+  try {
+    const ai = new GoogleGenAI({ apiKey: GOOGLE_GENAI_API_KEY });
+
+    // Convert history + latest message into a contents array
+    const contents = [
+      {
+        role: 'user',
+        parts: [
+          {
+            text:
+              'You are an AI concierge for an IATA Weekly Report dashboard. ' +
+              'You help users understand reports, summarize insights, and answer questions about their weekly activities. ' +
+              'Respond in concise, clear, professional plain text (no Markdown).',
+          },
+        ],
+      },
+      ...history.map((m) => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.content }],
+      })),
+      {
+        role: 'user',
+        parts: [{ text: message }],
+      },
+    ];
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-pro-preview',
+      contents,
+    });
+
+    if (response.text) {
+      return response.text.trim();
+    } else if (response.content) {
+      return response.content.trim();
+    } else {
+      throw new Error('Google GenAI did not return a valid chat reply.');
+    }
+  } catch (error) {
+    console.error('Google GenAI concierge chat failed:', error?.response?.data || error.message);
+    throw new Error('Failed to get concierge reply from Google GenAI.');
   }
 };

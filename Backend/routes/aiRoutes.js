@@ -6,6 +6,9 @@ const validateInput = require('../middleware/validateInput');
 // Input validation schema for stateless summarization
 const summarizeRequiredFields = { inputs: true };
 
+// Input validation schema for concierge chat
+const chatRequiredFields = { message: true };
+
 /**
  * POST /api/ai/summarize
  * Stateless summarization: summarizes a provided array of inputs (no saving)
@@ -25,6 +28,17 @@ router.post(
 router.post(
   '/summarize/:reportId',
   aiController.summarizeAndSaveReport
+);
+
+/**
+ * POST /api/ai/chat
+ * Concierge chat endpoint
+ * Body: { message, history? }
+ */
+router.post(
+  '/chat',
+  validateInput(chatRequiredFields),
+  aiController.chatConcierge
 );
 
 module.exports = router;
