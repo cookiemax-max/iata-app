@@ -3,9 +3,10 @@ import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import DashboardStats from './components/DashboardStats';
 import RecentReports from './components/RecentReports';
-import DailyInputs from './components/DailyInputs';
+import ReportDetail from './components/ReportDetail';
+import EmissionsDashboard from './components/EmissionsDashboard'; // ✅ ADD THIS
 import ChatSidebar from './components/ChatSidebar';
-import AllReports from './components/AllReports'; // You’ll create this soon
+import AllReports from './components/AllReports';
 import './index.css';
 import { AppContext } from './context/AppContext';
 
@@ -27,19 +28,17 @@ function App() {
                   <DashboardStats />
                 </section>
                 <div className="flex flex-col gap-8 w-full">
-                  <div>
-                    <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 flex-1 min-h-[420px]">
-                      {selectedReport ? (
-                        <DailyInputs reportId={selectedReport._id} />
-                      ) : (
-                        <div className="text-gray-400 text-center py-20">
-                          Please select a report from the list to view details and add daily inputs.
-                        </div>
-                      )}
-                    </div>
+                  <div className="flex-1 min-h-[500px]">
+                    {selectedReport ? (
+                      <ReportDetail />
+                    ) : (
+                      <div className="text-gray-400 text-center py-20">
+                        Please select a report from the list to view details and add daily inputs.
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 flex-1 overflow-y-auto">
+                  <div className="flex-shrink-0">
+                    <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
                       <RecentReports />
                     </div>
                   </div>
@@ -48,6 +47,9 @@ function App() {
             )}
             {activePage === 'reports' && (
               <AllReports />
+            )}
+            {activePage === 'emissions' && ( // ✅ ADD THIS
+              <EmissionsDashboard />
             )}
             {/* Add other routes/pages (e.g., AI) as needed */}
           </main>

@@ -7,9 +7,12 @@ dotenv.config();
 
 const connectDB = require('./config/db'); // Import the modular database connection
 
+// Routes
 const reportRoutes = require('./routes/reportRoutes');
 const dailyInputRoutes = require('./routes/dailyInputRoutes');
 const aiRoutes = require('./routes/aiRoutes');
+const emissionsRoutes = require('./routes/emissionsRoutes');
+const flightRoutes = require('./routes/flightRoutes'); // ADD THIS LINE
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -26,9 +29,16 @@ app.use(express.json());
 app.use('/api/reports', reportRoutes);
 app.use('/api/daily-inputs', dailyInputRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/emissions', emissionsRoutes);
+app.use('/api/flights', flightRoutes); // ADD THIS LINE
 
 // Error handling middleware - must be last
 app.use(errorHandler);
+
+// Health check endpoint (optional but useful)
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
 
 // Start server
 app.listen(PORT, () => {
