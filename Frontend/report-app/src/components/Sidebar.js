@@ -1,5 +1,5 @@
 import React from 'react';
-import { HomeIcon, ChartBarIcon, SparklesIcon, BarChart3Icon } from '@heroicons/react/24/outline'; // ✅ ADD BarChart3Icon
+import { HomeIcon, ChartBarIcon, SparklesIcon } from '@heroicons/react/24/outline'; // ✅ REMOVED BarChart3Icon
 
 export default function Sidebar({ activePage, setActivePage }) {
   const periodStart = '2025-11-18';
@@ -9,7 +9,7 @@ export default function Sidebar({ activePage, setActivePage }) {
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <HomeIcon className="w-5 h-5" /> },
     { id: 'reports', label: 'Reports', icon: <ChartBarIcon className="w-5 h-5" /> },
-    { id: 'emissions', label: 'Emissions', icon: <BarChart3Icon className="w-5 h-5" /> }, // ✅ ADD THIS
+    { id: 'emissions', label: 'Emissions', icon: <ChartBarIcon className="w-5 h-5" /> }, // ✅ FIXED: ChartBarIcon
     { id: 'ai', label: 'AI Concierge', icon: <SparklesIcon className="w-5 h-5" /> },
   ];
 

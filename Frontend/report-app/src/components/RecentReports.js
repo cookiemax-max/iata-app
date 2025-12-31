@@ -2,8 +2,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../context/AppContext';
 
 export default function RecentReports() {
-  const { reports, refreshReports, setSelectedReport, totalReports, currentPage, pages } = useContext(AppContext);
-
+  const { reports, refreshReports, setSelectedReport } = useContext(AppContext); // ✅ REMOVED unused: totalReports, currentPage, pages
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredReports, setFilteredReports] = useState([]);
   const [page, setPage] = useState(1);
@@ -25,53 +25,55 @@ export default function RecentReports() {
   if (reports.length === 0) return <div>No reports yet.</div>;
 
   return (
-    <div className="bg-white rounded shadow p-6">
-      <h2 className="font-bold text-lg mb-2">Recent Reports</h2>
+    <div className="bg-white rounded-xl shadow-lg p-8 border"> {/* ✅ Enhanced styling */}
+      <h2 className="text-2xl font-bold text-slate-900 mb-6">Recent Reports</h2>
       <input
         type="text"
-        placeholder="Search reports..."
-        className="border p-2 mb-4 w-full rounded"
+        placeholder="🔍 Search reports..."
+        className="w-full p-4 border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all mb-6"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <ul className="space-y-2 max-h-80 overflow-y-auto">
+      <ul className="space-y-3 max-h-96 overflow-y-auto"> {/* ✅ Better height */}
         {filteredReports.map((report) => (
           <li
             key={report._id}
-            className="p-2 border-b cursor-pointer hover:bg-blue-50"
+            className="p-4 bg-slate-50 rounded-xl hover:bg-blue-50 hover:shadow-md transition-all cursor-pointer border border-slate-100"
             onClick={() => setSelectedReport(report)}
           >
-            <div className="font-semibold">{report.title}</div>
+            <div className="font-semibold text-slate-900 text-lg mb-1 truncate">{report.title}</div>
             {/* Display the new period fields */}
-            <div className="text-xs text-gray-500">
+            <div className="text-sm text-emerald-600 mb-1">
               {report.periodStart && report.periodEnd &&
-                `Period: ${new Date(report.periodStart).toLocaleDateString()} — ${new Date(report.periodEnd).toLocaleDateString()}`}
+                `📅 ${new Date(report.periodStart).toLocaleDateString()} — ${new Date(report.periodEnd).toLocaleDateString()}`}
             </div>
-            <div className="text-xs text-gray-500">
-              Created: {new Date(report.createdAt).toLocaleDateString()}
+            <div className="text-xs text-gray-500 mb-1">
+              🕒 Created: {new Date(report.createdAt).toLocaleDateString()}
             </div>
-            <div className="text-xs capitalize text-gray-600">{report.status}</div>
+            <div className="text-xs font-medium capitalize px-2 py-1 bg-gray-100 rounded-full inline-block text-slate-700">
+              {report.status}
+            </div>
           </li>
         ))}
       </ul>
-      {/* Pagination controls */}
-      <div className="flex justify-between items-center mt-4">
+      {/* Pagination controls - Simplified (local pagination works fine) */}
+      <div className="flex justify-between items-center mt-6 pt-6 border-t border-slate-200">
         <button
           disabled={page <= 1}
           onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-          className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+          className="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl hover:bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
         >
-          Previous
+          ← Previous
         </button>
-        <div>
-          Page {page} of {pages}
+        <div className="text-sm font-semibold text-slate-700">
+          Page {page}
         </div>
         <button
-          disabled={page >= pages}
-          onClick={() => setPage((prev) => Math.min(prev + 1, pages))}
-          className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+          disabled={page >= Math.ceil(filteredReports.length / 10) || filteredReports.length === 0} // ✅ Local pagination logic
+          onClick={() => setPage((prev) => prev + 1)}
+          className="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
         >
-          Next
+          Next →
         </button>
       </div>
     </div>
